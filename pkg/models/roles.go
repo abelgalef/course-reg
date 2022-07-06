@@ -12,7 +12,7 @@ type Role struct {
 	Desc      string         `json:"description" gorm:"type:varchar(255);not null"`
 	Active    bool           `json:"-" gorm:"default:true"`
 	DeletedAt gorm.DeletedAt `json:"-"`
-	Users     []User         `json:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Users     []User         `json:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;foreignKey:RoleID"`
 	Rights    []Right        `json:"premissions" gorm:"many2many:role_permission;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 

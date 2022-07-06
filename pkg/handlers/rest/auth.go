@@ -11,8 +11,8 @@ import (
 )
 
 type AuthHandler interface {
-	Login(*gin.Context) (*models.LoginResponse, *utils.Error)
-	Register(*gin.Context) (*models.RegResponse, *utils.Error)
+	Login(*gin.Context) (*models.LoginResponse, []utils.Error)
+	Register(*gin.Context) (*models.RegResponse, []utils.Error)
 }
 
 type authHandler struct {
@@ -23,7 +23,7 @@ func NewAuthHandler(as services.AuthService) AuthHandler {
 	return &authHandler{authService: as}
 }
 
-func (ah *authHandler) Login(ctx *gin.Context) (*models.LoginResponse, *utils.Error) {
+func (ah *authHandler) Login(ctx *gin.Context) (*models.LoginResponse, []utils.Error) {
 	var data models.LoginData
 
 	if err := ctx.ShouldBindJSON(&data); err != nil {
@@ -39,7 +39,7 @@ func (ah *authHandler) Login(ctx *gin.Context) (*models.LoginResponse, *utils.Er
 	return response, nil
 }
 
-func (ah *authHandler) Register(ctx *gin.Context) (*models.RegResponse, *utils.Error) {
+func (ah *authHandler) Register(ctx *gin.Context) (*models.RegResponse, []utils.Error) {
 	var user models.User
 
 	if err := ctx.ShouldBindJSON(&user); err != nil {

@@ -39,12 +39,12 @@ func NewDatabaseConnection(createMySqlDB bool) *MainDB {
 	// COLLECT ALL MODELS HERE
 	// THE ORDER OF TABLES MATTERS HERE BECAUSE OF FOREGIN KEY DEPENDENCIES
 	tables := []interface{}{
-		&models.Role{},
 		&models.Right{},
-		&models.User{},
-		&models.Files{},
 		&models.Course{},
+		&models.Files{},
+		&models.User{},
 		&models.Department{},
+		&models.Role{},
 	}
 
 	if err1 := db.AutoMigrate(tables...); err != nil {

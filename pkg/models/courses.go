@@ -8,6 +8,7 @@ type Course struct {
 	Name      string    `json:"name" gorm:"unique; not null; index;type:varchar(255)"`
 	Active    bool      `json:"-" gorm:"default:true"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
+	DeptID    int       `json:"dept_id" gorm:"default:null"`
 	Files     []Files   `json:"Resources" gorm:"foreignKey:ID"`
 	Users     []User    `json:"-" gorm:"many2many:course_user"`
 }

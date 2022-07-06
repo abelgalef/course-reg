@@ -3,7 +3,6 @@ package services
 import (
 	"crypto/sha256"
 	"encoding/base64"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -14,7 +13,7 @@ import (
 
 type AuthService interface {
 	AuthenticateUser(*models.LoginData) (*models.LoginResponse, bool)
-	AddNewUser(*models.User) (*models.RegResponse, *utils.Error)
+	AddNewUser(*models.User) (*models.RegResponse, []utils.Error)
 }
 
 type authService struct {
@@ -33,24 +32,22 @@ func (as *authService) AuthenticateUser(data *models.LoginData) (*models.LoginRe
 	}
 
 	hash := sha256.Sum256([]byte(strings.TrimSpace(data.Pass)))
-	fmt.Println(base64.URLEncoding.EncodeToString(hash[:]), data.Pass)
+
 	if user.Password == base64.URLEncoding.EncodeToString(hash[:]) {
 		token, err := as.ts.GenerateToken(*user)
 		if err != nil {
 			return nil, false
 		}
 
-		fmt.Println("ghjadhg")
 		return &models.LoginResponse{
 			User:  *user,
 			Token: token,
 		}, true
 	}
-	fmt.Println("fadsfahk")
 	return nil, false
 }
 
-func (as *authService) AddNewUser(user *models.User) (*models.RegResponse, *utils.Error) {
+func (as *authService) AddNewUser(user *models.User) (*models.RegResponse, []utils.Error) {
 	hash := sha256.Sum256([]byte(strings.TrimSpace(user.Password)))
 	user.Password = base64.URLEncoding.EncodeToString(hash[:])
 

@@ -22,7 +22,7 @@ func setupAuthRoute(r *gin.Engine, handler rest.AuthHandler) *gin.Engine {
 		auth.POST("/login", func(ctx *gin.Context) {
 			res, err := handler.Login(ctx)
 			if err != nil {
-				ctx.JSON(err.Code, err)
+				ctx.JSON(err[0].Code, err)
 			} else {
 				ctx.JSON(http.StatusOK, res)
 			}
@@ -31,7 +31,7 @@ func setupAuthRoute(r *gin.Engine, handler rest.AuthHandler) *gin.Engine {
 		auth.POST("/register", func(ctx *gin.Context) {
 			res, err := handler.Register(ctx)
 			if err != nil {
-				ctx.JSON(err.Code, err)
+				ctx.JSON(err[0].Code, err)
 			} else {
 				ctx.JSON(http.StatusOK, res)
 			}
@@ -62,5 +62,6 @@ func main() {
 	r.Use(middlewares.CORSMiddleware())
 
 	r = setupAuthRoute(r, handler)
+	// r = setupDeptRouter(r, handler)
 	r.Run(":8080")
 }

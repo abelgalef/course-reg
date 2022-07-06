@@ -28,7 +28,6 @@ func NewJWTService() JWTTokenService {
 }
 
 func (ts *tokenService) GenerateToken(user models.User) (string, error) {
-	fmt.Println("in gen token")
 	claims := &claims{
 		user,
 		jwt.StandardClaims{
@@ -38,14 +37,11 @@ func (ts *tokenService) GenerateToken(user models.User) (string, error) {
 		},
 	}
 
-	fmt.Println("claims work")
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	fmt.Println("token made with claim")
 	tk, err := token.SignedString(([]byte(ts.authKey)))
 	if err != nil {
 		return "", err
 	}
-	fmt.Println("token signed")
 
 	return tk, nil
 }
