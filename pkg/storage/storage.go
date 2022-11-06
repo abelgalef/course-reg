@@ -40,11 +40,13 @@ func NewDatabaseConnection(createMySqlDB bool) *MainDB {
 	// THE ORDER OF TABLES MATTERS HERE BECAUSE OF FOREGIN KEY DEPENDENCIES
 	tables := []interface{}{
 		&models.Right{},
+		&models.Role{},
+		&models.Department{},
 		&models.Course{},
 		&models.Files{},
+		&models.Constraint{},
+		&models.CourseUser{},
 		&models.User{},
-		&models.Department{},
-		&models.Role{},
 	}
 
 	if err1 := db.AutoMigrate(tables...); err != nil {

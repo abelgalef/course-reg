@@ -11,10 +11,8 @@ type User struct {
 	Email     string    `json:"email" binding:"required,email" gorm:"unique;not null;index;type:varchar(255)"`
 	Password  string    `json:"password" gorm:"type:varchar(255)" binding:"required,min=6"`
 	Active    bool      `json:"-" gorm:"default:true"`
-	RoleID    uint      `json:"role_id" gorm:"default:null"`
+	RoleID    int       `json:"role_id" gorm:"default:null"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
-	DeptID    int       `json:"dept_id" gorm:"default:null"`
-	Courses   []Course  `json:"courses_given" gorm:"many2many"`
 }
 
 type LoginResponse struct {
@@ -31,7 +29,7 @@ type RegResponse struct {
 	FirstName string    `json:"first_name"`
 	LastName  string    `json:"last_name"`
 	Email     string    `json:"email"`
-	RoleID    uint      `json:"role_id"`
+	RoleID    int       `json:"role_id"`
 	CreatedAt time.Time `json:"created_at"`
 	Token     string    `json:"token"`
 }

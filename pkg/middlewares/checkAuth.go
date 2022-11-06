@@ -18,16 +18,16 @@ func CheckAuth(jwtService services.JWTTokenService, userRepo repos.UserRepo) gin
 			return
 		}
 
-		employee, authenticated := jwtService.ValidateToken(token[1])
+		user, authenticated := jwtService.ValidateToken(token[1])
 		if !authenticated {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User is not authenticated"})
 		} else {
-			emp, err := userRepo.GetUserWithID(employee.(map[string]interface{})["id"].(uint))
+			usr, err := userRepo.GetUserWithID(uint(user.(map[string]interface{})["id"].(float64)))
 			if err != nil {
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User information not found. Your token might have been invalidated, try logging in again."})
 			}
-			c.Set("employee", emp)
-			employee = nil
+			c.Set("user", usr)
+			user = nil
 			c.Next()
 		}
 	}

@@ -6,7 +6,7 @@ func TestStorage(t *testing.T) {
 	// CHECK DB HAS BEEN PROPERLY INSTANTIATED BY COUNTING THE NUMBER OF TABLES IN THE DATABASE
 	db := NewDatabaseConnection(false)
 
-	want := 9   // THE NUMBER OF TABLES NEEDED IN THE DATABASE
+	want := 10  // THE NUMBER OF TABLES NEEDED IN THE DATABASE
 	var got int // THE NUMBER OF TABLES WE GOT
 	if err := db.Connection.Raw("SELECT count(*) AS TOTAL_DB_NUM FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ? ;", "coursereg").Scan(&got).Error; err != nil {
 		t.Fatalf("Could not execute query: %v", err)

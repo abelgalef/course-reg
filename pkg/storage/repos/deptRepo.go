@@ -1,8 +1,11 @@
 package repos
 
 import (
+	"fmt"
+
 	"github.com/abelgalef/course-reg/pkg/models"
 	"github.com/abelgalef/course-reg/pkg/storage"
+	"gorm.io/gorm"
 )
 
 type DeptRepo interface {
@@ -23,7 +26,7 @@ func NewDeptRepo(db *storage.MainDB) DeptRepo {
 
 func (dr deptRepo) GetAllDepts() (*[]models.Department, error) {
 	var depts []models.Department
-	if err := dr.db.Connection.First(&depts).Error; err != nil {
+	if err := dr.db.Connection.Find(&depts).Error; err != nil {
 		return nil, err
 	}
 
@@ -40,9 +43,22 @@ func (dr deptRepo) GetDept(id int) (*models.Department, error) {
 }
 
 func (dr deptRepo) AddDept(dept *models.Department) error {
-	if err := dr.db.Connection.Create(dept).Error; err != nil {
+	err := dr.db.Connection.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(dept).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Create(createRightModels(*dept)).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -60,4 +76,15 @@ func (dr deptRepo) DeleteDept(id int) error {
 	}
 
 	return nil
+}
+
+func createRightModels(dept models.Department) []models.Right {
+	var rights []models.Right
+
+	return append(rights,
+		models.Right{Tag: dept.DeptCode + "/CONST-WRITE", Desc: fmt.Sprintf("This permission grants the role to add and update constraints on %s department.", dept.Name)},
+		models.Right{Tag: dept.DeptCode + "/ADD-COURSE", Desc: fmt.Sprintf("This permission grants the role to teach a particular course in the %s department.", dept.Name)},
+		models.Right{Tag: dept.DeptCode + "/COURSE-WRITE", Desc: fmt.Sprintf("This permission grants the role to add and update courses for %s department.", dept.Name)},
+	)
+
 }
