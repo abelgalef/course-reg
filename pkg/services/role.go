@@ -13,6 +13,9 @@ type RoleService interface {
 	CreateNewRole(int, *models.Role) error
 	GivePermissionToRole(int, int, int) error
 	RevokeRightFromRole(int, int, int) error
+	GetUsers(id int) (*[]models.User, error)
+	AddUserToRole(int, int, int) error
+	DeleteRole(int) error
 }
 
 type roleService struct {
@@ -30,6 +33,10 @@ func (r roleService) GetRoles() (*[]models.Role, error) {
 
 func (r roleService) GetRole(id int) (*models.Role, error) {
 	return r.roleRepo.GetRoleByID(id)
+}
+
+func (r roleService) DeleteRole(id int) error {
+	return r.roleRepo.DeleteRole(id)
 }
 
 func (r roleService) CreateNewRole(requestedBy int, role *models.Role) error {
@@ -56,6 +63,20 @@ func (r roleService) GivePermissionToRole(requestedBy, roleID, rightID int) erro
 func (r roleService) RevokeRightFromRole(requestedBy, roleID, rightID int) error {
 	if r.rightRepo.RoleHasRight(requestedBy, "ROLE/REVOKE-PERM") {
 		if err := r.rightRepo.RemoveRightFromRole(roleID, rightID); err != nil {
+			return err
+		}
+		return nil
+	}
+	return errors.New("you don't have the appropriate permissions to perform this action")
+}
+
+func (r roleService) GetUsers(id int) (*[]models.User, error) {
+	return r.roleRepo.GetUsers(id)
+}
+
+func (r roleService) AddUserToRole(requestedBy, roleID, usrID int) error {
+	if r.rightRepo.RoleHasRight(requestedBy, "ROLE/WRITE") {
+		if err := r.roleRepo.AddUserToRole(roleID, usrID); err != nil {
 			return err
 		}
 		return nil

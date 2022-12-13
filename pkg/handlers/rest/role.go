@@ -17,6 +17,9 @@ type RoleHandler interface {
 	AddNewRole(*gin.Context) (*models.Role, []utils.Error)
 	GivePerm(*gin.Context) error
 	RevokPerm(*gin.Context) error
+	GetUsers(*gin.Context) (*[]models.User, error)
+	AddUserToRole(*gin.Context) error
+	DeleteRole(*gin.Context) error
 }
 
 type roleHandler struct {
@@ -40,6 +43,17 @@ func (rh roleHandler) GetRole(ctx *gin.Context) (*models.Role, error) {
 	}
 
 	return rh.roleSer.GetRole(id)
+}
+
+func (rh roleHandler) DeleteRole(ctx *gin.Context) error {
+	qID := ctx.Param("id")
+
+	id, err := strconv.Atoi(qID)
+	if err != nil {
+		return err
+	}
+
+	return rh.roleSer.DeleteRole(id)
 }
 
 func (rh roleHandler) AddNewRole(ctx *gin.Context) (*models.Role, []utils.Error) {
@@ -96,4 +110,32 @@ func (rh roleHandler) RevokPerm(ctx *gin.Context) error {
 	usr := ctx.MustGet("user").(*models.User)
 
 	return rh.roleSer.RevokeRightFromRole(usr.ID, roleID, rightID)
+}
+
+func (rh roleHandler) GetUsers(ctx *gin.Context) (*[]models.User, error) {
+	roID := ctx.Param("role_id")
+	roleID, err := strconv.Atoi(roID)
+	if err != nil {
+		return nil, err
+	}
+
+	return rh.roleSer.GetUsers(roleID)
+}
+
+func (rh roleHandler) AddUserToRole(ctx *gin.Context) error {
+	roID := ctx.Param("role_id")
+	roleID, err := strconv.Atoi(roID)
+	if err != nil {
+		return err
+	}
+
+	uID := ctx.Param("user_id")
+	usrID, err := strconv.Atoi(uID)
+	if err != nil {
+		return err
+	}
+
+	usr := ctx.MustGet("user").(*models.User)
+
+	return rh.roleSer.AddUserToRole(usr.ID, roleID, usrID)
 }

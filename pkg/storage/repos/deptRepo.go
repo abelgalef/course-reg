@@ -35,7 +35,7 @@ func (dr deptRepo) GetAllDepts() (*[]models.Department, error) {
 
 func (dr deptRepo) GetDept(id int) (*models.Department, error) {
 	var dept models.Department
-	if err := dr.db.Connection.First(&dept, id).Error; err != nil {
+	if err := dr.db.Connection.Preload("Courses").Preload("Constraints").First(&dept, id).Error; err != nil {
 		return nil, err
 	}
 

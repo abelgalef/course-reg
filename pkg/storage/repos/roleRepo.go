@@ -12,6 +12,8 @@ type RoleRepo interface {
 	GetRoleByID(int) (*models.Role, error)
 	GetRoleByTag(string) (*models.Role, error)
 	GetAllRoles() (*[]models.Role, error)
+	GetUsers(int) (*[]models.User, error)
+	AddUserToRole(int, int) error
 }
 
 type roleRepo struct {
@@ -58,4 +60,17 @@ func (r roleRepo) GetAllRoles() (*[]models.Role, error) {
 	}
 
 	return &roles, nil
+}
+
+func (r roleRepo) GetUsers(id int) (*[]models.User, error) {
+	var users []models.User
+	if err := r.db.Connection.Where("role_id != ? OR role_id is NULL", id).Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	return &users, nil
+}
+
+func (r roleRepo) AddUserToRole(roleID, usrID int) error {
+	return r.db.Connection.Model(&models.User{}).Where("id = ?", usrID).Update("role_id", roleID).Error
 }

@@ -14,7 +14,7 @@ type Department struct {
 	CreatedAt   time.Time      `json:"created_at" gorm:"autoCreateTime"`
 	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
 	Courses     []Course       `json:"courses" gorm:"foreignKey:DeptID"`
-	Constraints []Constraint   `json:"-" gorm:"foreignKey:DeptID"`
+	Constraints []Constraint   `json:"constraints" gorm:"foreignKey:DeptID"`
 }
 
 type Constraint struct {

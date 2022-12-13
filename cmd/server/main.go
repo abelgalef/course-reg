@@ -44,7 +44,7 @@ func setupAuthRoute(r *gin.Engine, handler rest.AuthHandler) *gin.Engine {
 }
 
 func setupRoleRoute(r *gin.Engine, handler rest.RoleHandler, authMiddleware gin.HandlerFunc, corsMiddleware gin.HandlerFunc) *gin.Engine {
-	role := r.Group("/role", authMiddleware, corsMiddleware)
+	role := r.Group("/role", corsMiddleware, authMiddleware)
 	{
 		role.GET("/", func(ctx *gin.Context) {
 			res, err := handler.GetRoles(ctx)
@@ -61,6 +61,15 @@ func setupRoleRoute(r *gin.Engine, handler rest.RoleHandler, authMiddleware gin.
 				ctx.JSON(http.StatusInternalServerError, err)
 			} else {
 				ctx.JSON(http.StatusOK, res)
+			}
+		})
+
+		role.DELETE("/:id", func(ctx *gin.Context) {
+			err := handler.DeleteRole(ctx)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, err)
+			} else {
+				ctx.JSON(http.StatusOK, gin.H{"error": nil})
 			}
 		})
 
@@ -91,6 +100,24 @@ func setupRoleRoute(r *gin.Engine, handler rest.RoleHandler, authMiddleware gin.
 			}
 		})
 
+		role.GET("/neg-users/:role_id", func(ctx *gin.Context) {
+			res, err := handler.GetUsers(ctx)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			} else {
+				ctx.JSON(http.StatusOK, res)
+			}
+		})
+
+		role.PUT("/add-users/:role_id/:user_id", func(ctx *gin.Context) {
+			err := handler.AddUserToRole(ctx)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			} else {
+				ctx.JSON(http.StatusOK, nil)
+			}
+		})
+
 	}
 
 	return r
@@ -112,8 +139,8 @@ func setupRightsRoute(r *gin.Engine, handler rest.RightHanler, authMiddleware gi
 	return r
 }
 
-func setupDeptRouter(r *gin.Engine, handler rest.DeptHandler, authMiddleware gin.HandlerFunc) *gin.Engine {
-	dept := r.Group("/dept", authMiddleware)
+func setupDeptRouter(r *gin.Engine, handler rest.DeptHandler, authMiddleware gin.HandlerFunc, corsMiddleware gin.HandlerFunc) *gin.Engine {
+	dept := r.Group("/dept", authMiddleware, corsMiddleware)
 	{
 		dept.GET("/", func(ctx *gin.Context) {
 			res, err := handler.GetAllDepts(ctx)
@@ -309,20 +336,19 @@ func main() {
 	courseHandler := rest.NewCourseHandler(courseService)
 	rightHandler := rest.NewRightHandler(rightService)
 
-	authMiddleware := middlewares.CheckAuth(JWTservice, userRepo)
 	corsMiddleware := middlewares.CORSMiddleware()
+	authMiddleware := middlewares.CheckAuth(JWTservice, userRepo)
 
 	r := gin.Default()
 	r.Use(corsMiddleware)
 
 	r.GET("/user", authMiddleware, func(ctx *gin.Context) {
-
 		ctx.JSON(http.StatusOK, &models.LoginResponse{User: *(ctx.MustGet("user").(*models.User)), Token: strings.Split(ctx.GetHeader("Authorization"), " ")[1]})
 	})
 
 	r = setupAuthRoute(r, authHandler)
 	r = setupRoleRoute(r, roleHandler, authMiddleware, corsMiddleware)
-	r = setupDeptRouter(r, deptHandler, authMiddleware)
+	r = setupDeptRouter(r, deptHandler, authMiddleware, corsMiddleware)
 	r = setupConstRoutes(r, constHanlder, authMiddleware)
 	r = setupCourserouter(r, courseHandler, authMiddleware)
 	r = setupRightsRoute(r, rightHandler, authMiddleware, corsMiddleware)
